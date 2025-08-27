@@ -6,22 +6,22 @@ import (
 )
 
 type Phonebook struct {
-	contacts []*model.Person
+	Contacts []*model.Person
 }
 
 func NewPhonebook() *Phonebook {
-	return &Phonebook{contacts: []*model.Person{}}
+	return &Phonebook{Contacts: []*model.Person{}}
 }
 
 func (pb *Phonebook) GetContactAtIndex(index int) (*model.Person, error) {
-	if index < 0 || index >= len(pb.contacts) {
+	if index < 0 || index >= len(pb.Contacts) {
 		return nil, errors.New("index out of range")
 	}
-	return pb.contacts[index], nil
+	return pb.Contacts[index], nil
 }
 
 func (pb *Phonebook) GetContact(id int) (*model.Person, error) {
-	for _, contact := range pb.contacts {
+	for _, contact := range pb.Contacts {
 		if contact.GetID() == id {
 			return contact, nil
 		}
@@ -30,36 +30,36 @@ func (pb *Phonebook) GetContact(id int) (*model.Person, error) {
 }
 
 func (pb *Phonebook) IsEmpty() bool {
-	return len(pb.contacts) == 0
+	return len(pb.Contacts) == 0
 }
 
 func (pb *Phonebook) DeleteContact(id int) error {
-	for i, contact := range pb.contacts {
+	for i, contact := range pb.Contacts {
 		if contact.GetID() == id {
-			pb.contacts = append(pb.contacts[:i], pb.contacts[i+1:]...)
+			pb.Contacts = append(pb.Contacts[:i], pb.Contacts[i+1:]...)
 			return nil
 		}
 	}
 	return errors.New("contact not found")
 }
 
-func (pb *Phonebook) insert(p *model.Person) {
-	if len(pb.contacts) == 0 {
-		pb.contacts = append(pb.contacts, p)
+func (pb *Phonebook) Insert(p *model.Person) {
+	if len(pb.Contacts) == 0 {
+		pb.Contacts = append(pb.Contacts, p)
 		return
 	}
 	index := pb.findIndexInsertion(p)
 	pb.adjustPhonebook(index, "insert")
-	pb.contacts[index] = p
+	pb.Contacts[index] = p
 }
 
 func (pb *Phonebook) findIndexInsertion(p *model.Person) int {
-	high := len(pb.contacts) - 1
+	high := len(pb.Contacts) - 1
 	low := 0
 
 	for low <= high {
 		mid := (high + low) / 2
-		if pb.contacts[mid].CompareTo(p) < 0 {
+		if pb.Contacts[mid].CompareTo(p) < 0 {
 			low = mid + 1
 		} else {
 			high = mid - 1
@@ -72,12 +72,12 @@ func (pb *Phonebook) adjustPhonebook(index int, direction string) {
 	switch direction {
 	case "insert":
 		// make room by appending nil then shifting
-		pb.contacts = append(pb.contacts, nil)
-		copy(pb.contacts[index+1:], pb.contacts[index:])
+		pb.Contacts = append(pb.Contacts, nil)
+		copy(pb.Contacts[index+1:], pb.Contacts[index:])
 	case "delete":
 		// shift left to remove
-		copy(pb.contacts[index:], pb.contacts[index+1:])
-		pb.contacts = pb.contacts[:len(pb.contacts)-1]
+		copy(pb.Contacts[index:], pb.Contacts[index+1:])
+		pb.Contacts = pb.Contacts[:len(pb.Contacts)-1]
 	}
 }
 
@@ -87,7 +87,7 @@ func (pb *Phonebook) PrintContactsFromCountryCodes(countryCodes []int) []*model.
 	for _, code := range countryCodes {
 		lookup[code] = struct{}{}
 	}
-	for _, c := range pb.contacts {
+	for _, c := range pb.Contacts {
 		if _, ok := lookup[c.GetCountryCode()]; ok {
 			filtered = append(filtered, c)
 		}
