@@ -3,22 +3,26 @@ package model
 import "fmt"
 
 type Person struct {
-	id          int64
+	id          int
 	fName       string
 	lName       string
-	countryCode int16
-	areaCode    int32
+	countryCode int
+	areaCode    int
 	occupation  string
 	contactNum  string
 	sex         string
 }
 
-func (p *Person) GetID() int64 {
+func (p *Person) GetID() int {
 	return p.id
 }
 
 func (p *Person) GetFullName() string {
 	return p.fName + " " + p.lName
+}
+
+func (p *Person) GetCountryCode() int {
+	return p.countryCode
 }
 
 func (p *Person) GetPhoneNumber() string {
