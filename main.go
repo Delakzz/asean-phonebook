@@ -3,34 +3,86 @@ package main
 import (
 	"asean-phonebook/model"
 	"asean-phonebook/repository"
+	"bufio"
 	"fmt"
+	"os"
+	"strconv"
+	"strings"
 )
 
+func store(pb *repository.Phonebook) *model.Person {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	readString := func(prompt string) string {
+		fmt.Print(prompt)
+		scanner.Scan()
+		return scanner.Text()
+	}
+
+	readInt := func(prompt string) int {
+		for {
+			fmt.Print(prompt)
+			scanner.Scan()
+			input := scanner.Text()
+			value, err := strconv.Atoi(input)
+			if err != nil {
+				fmt.Println("Invalid input. Please enter a valid integer.")
+				continue
+			}
+			return value
+		}
+	}
+
+	studentNumber := readInt("\nEnter student number: ")
+	surname := readString("Enter surname: ")
+	firstName := readString("Enter first name: ")
+	occupation := readString("Enter occupation: ")
+	gender := readString("Enter gender (M for male, F for female): ")
+	countryCode := readInt("Enter country code: ")
+	areaCode := readInt("Enter area code: ")
+	phoneNumber := readString("Enter phone number: ")
+
+	person := model.NewPerson(studentNumber, firstName, surname, countryCode, areaCode, phoneNumber, occupation, gender)
+	pb.Insert(person)
+
+	fmt.Println("\nContact stored successfully!")
+	return person
+}
+
+func showMainMenu() {
+	fmt.Println()
+	fmt.Println("[1] Store to ASEAN phonebook")
+	fmt.Println("[2] Edit entry in ASEAN phonebook")
+	fmt.Println("[3] Delete entry from ASEAN phonebook")
+	fmt.Println("[4] View/Search ASEAN phonebook")
+	fmt.Println("[5] Exit")
+	fmt.Println()
+}
+
 func main() {
-	p1 := model.NewPerson(1, "Alice", "Smith", 1, 123, "1111111", "Engineer", "F")
-	p2 := model.NewPerson(2, "Bob", "Adams", 44, 456, "2222222", "Teacher", "M")
-	p3 := model.NewPerson(3, "Charlie", "Smith", 1, 123, "3333333", "Doctor", "M")
-
 	pb := &repository.Phonebook{Contacts: []*model.Person{}}
+	scanner := bufio.NewScanner(os.Stdin)
 
-	pb.Insert(p1)
-	pb.Insert(p2)
-	pb.Insert(p3)
-
-	fmt.Println("Contacts after insertion (sorted by last, first name):")
-	for _, c := range pb.Contacts {
-		fmt.Printf("%d: %s, %s, Phone: %s\n", c.ID, c.LName, c.FName, c.GetPhoneNumber())
-	}
-
-	pb.DeleteContact(2)
-	fmt.Println("\nContacts after deleting ID 2:")
-	for _, c := range pb.Contacts {
-		fmt.Printf("%d: %s, %s\n", c.ID, c.LName, c.FName)
-	}
-
-	filtered := pb.PrintContactsFromCountryCodes([]int{1})
-	fmt.Println("\nContacts with country code 1:")
-	for _, c := range filtered {
-		fmt.Printf("%d: %s, %s\n", c.ID, c.LName, c.FName)
+	for {
+		showMainMenu()
+		fmt.Print("Enter choice: ")
+		scanner.Scan()
+		choice := scanner.Text()
+		switch choice {
+		case "1":
+			for {
+				store(pb)
+				fmt.Print("\nDo you want to enter another contact? (y/n): ")
+				scanner.Scan()
+				if again := strings.ToLower(scanner.Text()); again != "y" {
+					break
+				}
+			}
+		case "5":
+			fmt.Println("Exiting...")
+			return
+		default:
+			fmt.Println("Invalid choice, please try again.")
+		}
 	}
 }

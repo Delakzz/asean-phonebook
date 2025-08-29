@@ -71,11 +71,11 @@ func (pb *Phonebook) findIndexInsertion(p *model.Person) int {
 func (pb *Phonebook) adjustPhonebook(index int, direction string) {
 	switch direction {
 	case "insert":
-		// make room by appending nil then shifting
+		// to right
 		pb.Contacts = append(pb.Contacts, nil)
 		copy(pb.Contacts[index+1:], pb.Contacts[index:])
 	case "delete":
-		// shift left to remove
+		// to left
 		copy(pb.Contacts[index:], pb.Contacts[index+1:])
 		pb.Contacts = pb.Contacts[:len(pb.Contacts)-1]
 	}
