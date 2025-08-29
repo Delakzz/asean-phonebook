@@ -129,6 +129,16 @@ func searchCountry(pb *repository.Phonebook) []int {
 		count++
 	}
 
+	selectedCountries := []string{}
+	for name, code := range countryCodes {
+		for _, selectedCode := range selectedCountryCodes {
+			if code == selectedCode {
+				selectedCountries = append(selectedCountries, name)
+			}
+		}
+	}
+
+	fmt.Printf("Here are the students from the %s", selectedCountries)
 	fmt.Printf("\n%s\n", pb.PrintContactsFromCountryCodes(selectedCountryCodes))
 
 	return nil

@@ -81,15 +81,15 @@ func (pb *Phonebook) adjustPhonebook(index int, direction string) {
 	}
 }
 
-func (pb *Phonebook) PrintContactsFromCountryCodes(countryCodes []int) []*model.Person {
-	var filtered []*model.Person
+func (pb *Phonebook) PrintContactsFromCountryCodes(selectedCountryCodes []int) []string {
+	var filtered []string
 	lookup := make(map[int]struct{})
-	for _, code := range countryCodes {
+	for _, code := range selectedCountryCodes {
 		lookup[code] = struct{}{}
 	}
 	for _, c := range pb.Contacts {
 		if _, ok := lookup[c.GetCountryCode()]; ok {
-			filtered = append(filtered, c)
+			filtered = append(filtered, c.GetPersonDetails())
 		}
 	}
 	return filtered

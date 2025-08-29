@@ -1,6 +1,9 @@
 package model
 
-import "fmt"
+import (
+	"fmt"
+	"strings"
+)
 
 type Person struct {
 	ID          int
@@ -47,7 +50,24 @@ func (p *Person) GetOccupation() string {
 }
 
 func (p *Person) GetSex() string {
-	return p.Sex
+	gender := strings.ToLower(p.Sex)
+	if gender == "m" {
+		return "Male"
+	} else {
+		return "Female"
+	}
+}
+
+func (p *Person) GetPronouns() string {
+	if p.GetSex() == "Male" {
+		return "His"
+	} else {
+		return "Her"
+	}
+}
+
+func (p *Person) GetPersonDetails() string {
+	return fmt.Sprintf("%s, %s, with student number %d, is a %s. %s phone number is %s", p.LName, p.FName, p.ID, p.Occupation, p.GetPronouns(), p.GetPhoneNumber())
 }
 
 func (p *Person) CompareTo(other *Person) int {
