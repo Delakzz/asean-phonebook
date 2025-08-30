@@ -75,7 +75,7 @@ func (p *Person) GetPronouns() string {
 }
 
 func (p *Person) GetPersonDetails() string {
-	return fmt.Sprintf("%s, %s, with student number %d, is a %s. %s phone number is %s", p.LName, p.FName, p.ID, p.Occupation, p.GetPronouns(), p.GetPhoneNumber())
+	return fmt.Sprintf("%s, %s, with student number %d, is a/an %s. %s phone number is %s", p.LName, p.FName, p.ID, p.Occupation, p.GetPronouns(), p.GetPhoneNumber())
 }
 
 func (p *Person) CompareTo(other *Person) int {

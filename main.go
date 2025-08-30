@@ -4,6 +4,7 @@ import (
 	"asean-phonebook/model"
 	"asean-phonebook/repository"
 	"bufio"
+	"errors"
 	"fmt"
 	"os"
 	"slices"
@@ -11,7 +12,7 @@ import (
 	"strings"
 )
 
-func store(pb *repository.Phonebook) *model.Person {
+func storeEntry(pb *repository.Phonebook) *model.Person {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	readString := func(prompt string) string {
@@ -76,6 +77,77 @@ func deleteEntry(pb *repository.Phonebook) {
 	}
 }
 
+func showPersonInformation(pb *repository.Phonebook, id int) error {
+	person, err := pb.GetContact(id)
+	if err != nil {
+		return errors.New("contact not found")
+	}
+
+	fmt.Printf("\nHere is the existing information about %d:\n", person.GetID())
+	fmt.Printf("%s\n", person.GetPersonDetails())
+	return nil
+}
+
+func editEntry(pb *repository.Phonebook, person *model.Person) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	readString := func(prompt string) string {
+		fmt.Print(prompt)
+		scanner.Scan()
+		return scanner.Text()
+	}
+
+	readInt := func(prompt string) int {
+		for {
+			fmt.Print(prompt)
+			scanner.Scan()
+			input := scanner.Text()
+			value, err := strconv.Atoi(input)
+			if err != nil {
+				fmt.Println("Invalid input. Please enter a valid integer.")
+				continue
+			}
+			return value
+		}
+	}
+
+	for {
+		showPersonInformation(pb, person.ID)
+		showEditMenu()
+		choice := readString("Enter choice: ")
+		switch choice {
+		case "1":
+			newID := readInt("Enter new student number: ")
+			person.ID = newID
+		case "2":
+			newFName := readString("Enter new first name: ")
+			person.FName = newFName
+		case "3":
+			newLName := readString("Enter new surname: ")
+			person.LName = newLName
+		case "4":
+			newOccupation := readString("Enter new occupation: ")
+			person.Occupation = newOccupation
+		case "5":
+			newCountryCode := readInt("Enter new country code: ")
+			person.CountryCode = newCountryCode
+		case "6":
+			newAreaCode := readInt("Enter new area code: ")
+			person.AreaCode = newAreaCode
+		case "7":
+			newPhoneNumber := readString("Enter new phone number: ")
+			person.ContactNum = newPhoneNumber
+		case "8":
+			newGender := readString("Enter new gender: ")
+			person.Sex = newGender
+		case "9":
+			return
+		default:
+			fmt.Println("Invalid choice, please try again.")
+		}
+	}
+}
+
 func searchCountry(pb *repository.Phonebook) {
 	scanner := bufio.NewScanner(os.Stdin)
 
@@ -115,7 +187,7 @@ func searchCountry(pb *repository.Phonebook) {
 	selectedCountryCodes := []int{}
 	count := 1
 	for {
-		choice := readInt(fmt.Sprintf("Enter choice %d: ", count))
+		choice := readInt(fmt.Sprintf("\nEnter choice %d: ", count))
 		if choice == 0 {
 			break
 		}
@@ -214,6 +286,15 @@ func showMainMenu() {
 	fmt.Println()
 }
 
+func showEditMenu() {
+	fmt.Println()
+	fmt.Println("Which of the following information do you wish to change?")
+	fmt.Println("[1] Student number [2] First name [3] Surname [4] Occupation")
+	fmt.Println("[5] Country code [6] Area code [7] Phone number [8] Gender")
+	fmt.Println("[9] None - Go back to main menu")
+	fmt.Println()
+}
+
 func showViewSearchMenu() {
 	fmt.Println()
 	fmt.Println("[1] Search by countries")
@@ -234,13 +315,37 @@ func main() {
 		switch choice {
 		case "1":
 			for {
-				store(pb)
+				storeEntry(pb)
 				fmt.Print("\nDo you want to enter another contact? (y/n): ")
 				scanner.Scan()
 				if again := strings.ToLower(scanner.Text()); again != "y" {
 					break
 				}
 			}
+		case "2":
+			if pb.IsEmpty() {
+				fmt.Println("\nPhonebook is empty. Please add contacts first.")
+				break
+			}
+			var student *model.Person
+			for {
+				fmt.Print("\nEnter student number to edit: ")
+				scanner.Scan()
+				input := scanner.Text()
+				studentNumber, err := strconv.Atoi(input)
+				if err != nil {
+					fmt.Println("Invalid input. Please enter a valid integer.")
+					continue
+				}
+
+				student, err = pb.GetContact(studentNumber)
+				if err != nil {
+					fmt.Println("Contact not found.")
+					continue
+				}
+				break
+			}
+			editEntry(pb, student)
 		case "3":
 			if pb.IsEmpty() {
 				fmt.Println("\nPhonebook is empty. Please add contacts first.")
