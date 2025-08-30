@@ -111,6 +111,8 @@ func editEntry(pb *repository.Phonebook, person *model.Person) {
 		}
 	}
 
+	updatedContact := person
+
 	for {
 		showPersonInformation(pb, person.ID)
 		showEditMenu()
@@ -118,33 +120,34 @@ func editEntry(pb *repository.Phonebook, person *model.Person) {
 		switch choice {
 		case "1":
 			newID := readInt("Enter new student number: ")
-			person.ID = newID
+			updatedContact.ID = newID
 		case "2":
 			newFName := readString("Enter new first name: ")
-			person.FName = newFName
+			updatedContact.FName = newFName
 		case "3":
 			newLName := readString("Enter new surname: ")
-			person.LName = newLName
+			updatedContact.LName = newLName
 		case "4":
 			newOccupation := readString("Enter new occupation: ")
-			person.Occupation = newOccupation
+			updatedContact.Occupation = newOccupation
 		case "5":
 			newCountryCode := readInt("Enter new country code: ")
-			person.CountryCode = newCountryCode
+			updatedContact.CountryCode = newCountryCode
 		case "6":
 			newAreaCode := readInt("Enter new area code: ")
-			person.AreaCode = newAreaCode
+			updatedContact.AreaCode = newAreaCode
 		case "7":
 			newPhoneNumber := readString("Enter new phone number: ")
-			person.ContactNum = newPhoneNumber
+			updatedContact.ContactNum = newPhoneNumber
 		case "8":
 			newGender := readString("Enter new gender: ")
-			person.Sex = newGender
+			updatedContact.Sex = newGender
 		case "9":
 			return
 		default:
 			fmt.Println("Invalid choice, please try again.")
 		}
+		pb.UpdateContact(person.ID, updatedContact)
 	}
 }
 
@@ -304,7 +307,10 @@ func showViewSearchMenu() {
 }
 
 func main() {
-	pb := &repository.Phonebook{Contacts: []*model.Person{}}
+	pb, err := repository.NewPhonebook("db/phonebook.json")
+	if err != nil {
+		panic(err)
+	}
 	scanner := bufio.NewScanner(os.Stdin)
 
 	for {
