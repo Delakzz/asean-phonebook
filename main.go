@@ -6,6 +6,7 @@ import (
 	"bufio"
 	"fmt"
 	"os"
+	"slices"
 	"strconv"
 	"strings"
 )
@@ -49,7 +50,33 @@ func store(pb *repository.Phonebook) *model.Person {
 	return person
 }
 
-func searchCountry(pb *repository.Phonebook) []int {
+func deleteEntry(pb *repository.Phonebook) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	for {
+		fmt.Print("Enter student number to delete: ")
+		scanner.Scan()
+		input := scanner.Text()
+		studentNumber, err := strconv.Atoi(input)
+		if err != nil {
+			fmt.Println("Invalid input. Please enter a valid integer.")
+			continue
+		}
+
+		fmt.Print("Are you sure you want to delete it (y/n)? ")
+		scanner.Scan()
+		confirm := strings.ToLower(scanner.Text())
+		if confirm != "y" {
+			fmt.Println("Deletion did not proceed")
+			return
+		}
+		pb.DeleteContact(studentNumber)
+		fmt.Println("Deletion successful")
+		return
+	}
+}
+
+func searchCountry(pb *repository.Phonebook) {
 	scanner := bufio.NewScanner(os.Stdin)
 
 	readInt := func(prompt string) int {
@@ -120,28 +147,61 @@ func searchCountry(pb *repository.Phonebook) []int {
 			for _, code := range countryCodes {
 				fmt.Printf("\n%s\n", pb.PrintContactsFromCountryCodes([]int{code}))
 			}
-			return nil
+			return
 		default:
 			fmt.Println("Invalid choice, please try again.")
+			continue
+		}
+		if slices.Contains(selectedCountryCodes, selectedCode) {
+			fmt.Println("Country already selected, please choose another.")
 			continue
 		}
 		selectedCountryCodes = append(selectedCountryCodes, selectedCode)
 		count++
 	}
 
-	selectedCountries := []string{}
+	// for displaying selected countries
+	var matches []string
 	for name, code := range countryCodes {
-		for _, selectedCode := range selectedCountryCodes {
-			if code == selectedCode {
-				selectedCountries = append(selectedCountries, name)
-			}
+		if slices.Contains(selectedCountryCodes, code) {
+			matches = append(matches, name)
 		}
 	}
 
-	fmt.Printf("Here are the students from the %s", selectedCountries)
-	fmt.Printf("\n%s\n", pb.PrintContactsFromCountryCodes(selectedCountryCodes))
+	var selectedCountries string
+	switch len(matches) {
+	case 0:
+		selectedCountries = ""
+	case 1:
+		selectedCountries = matches[0]
+	case 2:
+		selectedCountries = matches[0] + " and " + matches[1]
+	default:
+		selectedCountries = strings.Join(matches[:len(matches)-1], ", ") +
+			", and " + matches[len(matches)-1]
+	}
 
-	return nil
+	fmt.Println()
+	fmt.Printf("Here are the students from the %s:", selectedCountries)
+	result := pb.PrintContactsFromCountryCodes(selectedCountryCodes)
+	fmt.Println()
+	fmt.Printf("\n%s\n", strings.Join(result, "\n\n"))
+}
+
+func searchSurname(pb *repository.Phonebook) {
+	scanner := bufio.NewScanner(os.Stdin)
+
+	fmt.Print("Enter surname: ")
+	scanner.Scan()
+	surname := scanner.Text()
+	results := pb.GetSurnames(surname)
+	fmt.Println()
+	if len(results) == 0 {
+		fmt.Printf("No contacts found with the surname '%s'.\n", surname)
+	} else {
+		fmt.Printf("Contacts with the surname '%s':\n", surname)
+		fmt.Printf("\n%s\n", strings.Join(results, "\n\n"))
+	}
 }
 
 func showMainMenu() {
@@ -181,6 +241,12 @@ func main() {
 					break
 				}
 			}
+		case "3":
+			if pb.IsEmpty() {
+				fmt.Println("\nPhonebook is empty. Please add contacts first.")
+				continue
+			}
+			deleteEntry(pb)
 		case "4":
 		subMenu:
 			for {
@@ -202,8 +268,7 @@ func main() {
 						fmt.Println("\nPhonebook is empty. Please add contacts first.")
 						continue
 					}
-					// searchSurname(pb)
-					searchCountry(pb)
+					searchSurname(pb)
 
 				case "3":
 					fmt.Println("Returning to main menu...")

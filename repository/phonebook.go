@@ -3,6 +3,7 @@ package repository
 import (
 	"asean-phonebook/model"
 	"errors"
+	"strings"
 )
 
 type Phonebook struct {
@@ -36,7 +37,7 @@ func (pb *Phonebook) IsEmpty() bool {
 func (pb *Phonebook) DeleteContact(id int) error {
 	for i, contact := range pb.Contacts {
 		if contact.GetID() == id {
-			pb.Contacts = append(pb.Contacts[:i], pb.Contacts[i+1:]...)
+			pb.adjustPhonebook(i, "delete")
 			return nil
 		}
 	}
@@ -51,6 +52,7 @@ func (pb *Phonebook) Insert(p *model.Person) {
 	index := pb.findIndexInsertion(p)
 	pb.adjustPhonebook(index, "insert")
 	pb.Contacts[index] = p
+
 }
 
 func (pb *Phonebook) findIndexInsertion(p *model.Person) int {
@@ -93,4 +95,14 @@ func (pb *Phonebook) PrintContactsFromCountryCodes(selectedCountryCodes []int) [
 		}
 	}
 	return filtered
+}
+
+func (pb *Phonebook) GetSurnames(selectedSurname string) []string {
+	var surnames []string
+	for _, c := range pb.Contacts {
+		if strings.EqualFold(c.GetLastName(), selectedSurname) {
+			surnames = append(surnames, c.GetPersonDetails())
+		}
+	}
+	return surnames
 }

@@ -37,6 +37,14 @@ func (p *Person) GetFullName() string {
 	return p.FName + " " + p.LName
 }
 
+func (p *Person) GetFirstName() string {
+	return p.FName
+}
+
+func (p *Person) GetLastName() string {
+	return p.LName
+}
+
 func (p *Person) GetCountryCode() int {
 	return p.CountryCode
 }
