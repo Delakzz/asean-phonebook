@@ -45,7 +45,7 @@ func storeEntry(pb *repository.Phonebook) *model.Person {
 	phoneNumber := readString("Enter phone number: ")
 
 	person := model.NewPerson(studentNumber, firstName, surname, countryCode, areaCode, phoneNumber, occupation, gender)
-	pb.Insert(person)
+	pb.InsertContact(person)
 
 	fmt.Println("\nContact stored successfully!")
 	return person
@@ -219,9 +219,7 @@ func searchCountry(pb *repository.Phonebook) {
 		case 11:
 			selectedCode = countryCodes["Singapore"]
 		case 12:
-			for _, code := range countryCodes {
-				fmt.Printf("\n%s\n", pb.PrintContactsFromCountryCodes([]int{code}))
-			}
+			printAllContacts(pb)
 			return
 		default:
 			fmt.Println("Invalid choice, please try again.")
@@ -257,8 +255,8 @@ func searchCountry(pb *repository.Phonebook) {
 	}
 
 	fmt.Println()
-	fmt.Printf("Here are the students from the %s:", selectedCountries)
-	result := pb.PrintContactsFromCountryCodes(selectedCountryCodes)
+	fmt.Printf("Here are the students from %s:", selectedCountries)
+	result := pb.GetContactsFromCountryCodes(selectedCountryCodes)
 	fmt.Println()
 	fmt.Printf("\n%s\n", strings.Join(result, "\n\n"))
 }
@@ -277,6 +275,14 @@ func searchSurname(pb *repository.Phonebook) {
 		fmt.Printf("Contacts with the surname '%s':\n", surname)
 		fmt.Printf("\n%s\n", strings.Join(results, "\n\n"))
 	}
+}
+
+func printAllContacts(pb *repository.Phonebook) {
+	fmt.Println()
+	fmt.Printf("Here are the students from the phonebook:")
+	result := pb.GetAllContacts()
+	fmt.Println()
+	fmt.Printf("\n%s\n", strings.Join(result, "\n\n"))
 }
 
 func showMainMenu() {
@@ -300,9 +306,10 @@ func showEditMenu() {
 
 func showViewSearchMenu() {
 	fmt.Println()
-	fmt.Println("[1] Search by countries")
-	fmt.Println("[2] Search by surname")
-	fmt.Println("[3] Go back to main menu")
+	fmt.Println("[1] View all students")
+	fmt.Println("[2] Search by countries")
+	fmt.Println("[3] Search by surname")
+	fmt.Println("[4] Go back to main menu")
 	fmt.Println()
 }
 
@@ -361,6 +368,10 @@ func main() {
 		case "4":
 		subMenu:
 			for {
+				if pb.IsEmpty() {
+					fmt.Println("\nPhonebook is empty. Please add contacts first.")
+					break subMenu
+				}
 				showViewSearchMenu()
 				fmt.Print("Enter choice: ")
 				scanner.Scan()
@@ -368,20 +379,13 @@ func main() {
 
 				switch subChoice {
 				case "1":
-					if pb.IsEmpty() {
-						fmt.Println("\nPhonebook is empty. Please add contacts first.")
-						continue
-					}
-					searchCountry(pb)
-
+					printAllContacts(pb)
 				case "2":
-					if pb.IsEmpty() {
-						fmt.Println("\nPhonebook is empty. Please add contacts first.")
-						continue
-					}
+					searchCountry(pb)
+				case "3":
 					searchSurname(pb)
 
-				case "3":
+				case "4":
 					fmt.Println("Returning to main menu...")
 					break subMenu
 

@@ -99,7 +99,7 @@ func (pb *Phonebook) DeleteContact(id int) error {
 	return errors.New("contact not found")
 }
 
-func (pb *Phonebook) Insert(p *model.Person) error {
+func (pb *Phonebook) InsertContact(p *model.Person) error {
 	pb.mutex.Lock()
 	defer pb.mutex.Unlock()
 	if len(pb.Contacts) == 0 {
@@ -140,9 +140,12 @@ func (pb *Phonebook) adjustPhonebook(index int, direction string) {
 	}
 }
 
-func (pb *Phonebook) PrintContactsFromCountryCodes(selectedCountryCodes []int) []string {
+func (pb *Phonebook) GetContactsFromCountryCodes(selectedCountryCodes []int) []string {
 	pb.mutex.RLock()
 	defer pb.mutex.RUnlock()
+	if len(selectedCountryCodes) == 11 {
+		return pb.GetAllContacts()
+	}
 	var filtered []string
 	lookup := make(map[int]struct{})
 	for _, code := range selectedCountryCodes {
@@ -166,4 +169,14 @@ func (pb *Phonebook) GetSurnames(selectedSurname string) []string {
 		}
 	}
 	return surnames
+}
+
+func (pb *Phonebook) GetAllContacts() []string {
+	pb.mutex.RLock()
+	defer pb.mutex.RUnlock()
+	var contacts []string
+	for _, c := range pb.Contacts {
+		contacts = append(contacts, c.GetPersonDetails())
+	}
+	return contacts
 }
