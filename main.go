@@ -186,11 +186,16 @@ func searchCountry(pb *repository.Phonebook) {
 	fmt.Println("[1] Myanmar [2] Cambodia [3] Thailand [4] Vietnam [5] Malaysia")
 	fmt.Println("[6] Philippines [7] Indonesia [8] Timor Leste [9] Laos")
 	fmt.Println("[10] Brunei [11] Singapore [12] All [0] No more")
+	fmt.Println()
 
 	selectedCountryCodes := []int{}
 	count := 1
 	for {
-		choice := readInt(fmt.Sprintf("\nEnter choice %d: ", count))
+		if count > 11 {
+			fmt.Println("You selected all countries!")
+			break
+		}
+		choice := readInt(fmt.Sprintf("Enter choice %d: ", count))
 		if choice == 0 {
 			break
 		}
@@ -219,8 +224,7 @@ func searchCountry(pb *repository.Phonebook) {
 		case 11:
 			selectedCode = countryCodes["Singapore"]
 		case 12:
-			printAllContacts(pb)
-			return
+			selectedCountryCodes = []int{60, 62, 63, 65, 66, 84, 95, 673, 855, 856, 670}
 		default:
 			fmt.Println("Invalid choice, please try again.")
 			continue
@@ -243,20 +247,27 @@ func searchCountry(pb *repository.Phonebook) {
 
 	var selectedCountries string
 	switch len(matches) {
-	case 0:
-		selectedCountries = ""
 	case 1:
 		selectedCountries = matches[0]
 	case 2:
 		selectedCountries = matches[0] + " and " + matches[1]
+	case 11:
+		printAllContacts(pb)
+		return
 	default:
 		selectedCountries = strings.Join(matches[:len(matches)-1], ", ") +
 			", and " + matches[len(matches)-1]
 	}
 
 	fmt.Println()
-	fmt.Printf("Here are the students from %s:", selectedCountries)
 	result := pb.GetContactsFromCountryCodes(selectedCountryCodes)
+
+	if len(result) == 0 {
+		fmt.Printf("No contacts found from %s.\n", selectedCountries)
+		return
+	}
+
+	fmt.Printf("Here are the students from %s:", selectedCountries)
 	fmt.Println()
 	fmt.Printf("\n%s\n", strings.Join(result, "\n\n"))
 }
@@ -264,7 +275,7 @@ func searchCountry(pb *repository.Phonebook) {
 func searchSurname(pb *repository.Phonebook) {
 	scanner := bufio.NewScanner(os.Stdin)
 
-	fmt.Print("Enter surname: ")
+	fmt.Print("\nEnter surname: ")
 	scanner.Scan()
 	surname := scanner.Text()
 	results := pb.GetSurnames(surname)
@@ -279,7 +290,7 @@ func searchSurname(pb *repository.Phonebook) {
 
 func printAllContacts(pb *repository.Phonebook) {
 	fmt.Println()
-	fmt.Printf("Here are the students from the phonebook:")
+	fmt.Printf("Here are the students from all countries:")
 	result := pb.GetAllContacts()
 	fmt.Println()
 	fmt.Printf("\n%s\n", strings.Join(result, "\n\n"))

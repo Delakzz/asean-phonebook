@@ -143,9 +143,6 @@ func (pb *Phonebook) adjustPhonebook(index int, direction string) {
 func (pb *Phonebook) GetContactsFromCountryCodes(selectedCountryCodes []int) []string {
 	pb.mutex.RLock()
 	defer pb.mutex.RUnlock()
-	if len(selectedCountryCodes) == 11 {
-		return pb.GetAllContacts()
-	}
 	var filtered []string
 	lookup := make(map[int]struct{})
 	for _, code := range selectedCountryCodes {
